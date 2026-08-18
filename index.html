@@ -598,6 +598,7 @@ const DOC_TYPES = {
   panggilan: { label: 'Surat Panggilan', desc: 'Foto surat panggilan yang dikeluarkan untuk nasabah.' },
   tanda_terima: { label: 'Tanda Terima Surat', desc: 'Bukti bahwa nasabah sudah menerima surat panggilan (tanda tangan / foto serah terima).' },
   iktikad_baik: { label: 'Surat Iktikad Baik', desc: 'Foto surat pernyataan iktikad baik dari nasabah.' },
+  perjanjian_pelunasan: { label: 'Perjanjian Pelunasan', desc: 'Foto surat perjanjian pelunasan pinjaman dana BUMKam.' },
 };
 
 /* ================= STORAGE HELPERS ================= */
@@ -673,12 +674,21 @@ async function loadPeopleIndex(){
 async function savePeopleIndex(){
   await storageSet('people-index', JSON.stringify(peopleIndex));
 }
+function normalizePersonData(data){
+  data = data || {};
+  data.panggilan = data.panggilan || [];
+  data.tanda_terima = data.tanda_terima || [];
+  data.iktikad_baik = data.iktikad_baik || [];
+  data.perjanjian_pelunasan = data.perjanjian_pelunasan || [];
+  data.pembayaran = data.pembayaran || [];
+  return data;
+}
 async function loadPersonData(id){
   try{
     const v = await storageGet('person-data:'+id);
-    return v ? JSON.parse(v) : { panggilan:[], tanda_terima:[], iktikad_baik:[], pembayaran:[] };
+    return normalizePersonData(v ? JSON.parse(v) : null);
   }catch(e){
-    return { panggilan:[], tanda_terima:[], iktikad_baik:[], pembayaran:[] };
+    return normalizePersonData(null);
   }
 }
 async function savePersonData(id, data){
@@ -726,13 +736,14 @@ function fmtRupiah(n){
   return 'Rp ' + n.toLocaleString('id-ID');
 }
 function isComplete(data){
-  return data.panggilan.length>0 && data.tanda_terima.length>0 && data.iktikad_baik.length>0;
+  return data.panggilan.length>0 && data.tanda_terima.length>0 && data.iktikad_baik.length>0 && data.perjanjian_pelunasan.length>0;
 }
 function missingList(data){
   const m = [];
   if(data.panggilan.length===0) m.push('Surat Panggilan');
   if(data.tanda_terima.length===0) m.push('Tanda Terima');
   if(data.iktikad_baik.length===0) m.push('Iktikad Baik');
+  if(data.perjanjian_pelunasan.length===0) m.push('Perjanjian Pelunasan');
   return m;
 }
 
@@ -828,6 +839,7 @@ async function renderMain(){
     {key:'panggilan', label:'Surat Panggilan'},
     {key:'tanda_terima', label:'Tanda Terima'},
     {key:'iktikad_baik', label:'Iktikad Baik'},
+    {key:'perjanjian_pelunasan', label:'Perjanjian Pelunasan'},
     {key:'pembayaran', label:'Pembayaran'},
   ];
   const tabsEl = document.getElementById('tabs');
@@ -1005,7 +1017,7 @@ async function savePerson(){
   }else{
     const id = uid();
     peopleIndex.push({ id, nama, roles, hp, alamat, createdAt: new Date().toISOString() });
-    personDataCache[id] = { panggilan:[], tanda_terima:[], iktikad_baik:[], pembayaran:[] };
+    personDataCache[id] = normalizePersonData(null);
     await savePersonData(id, personDataCache[id]);
     currentPersonId = id;
   }
