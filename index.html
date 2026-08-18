@@ -1159,81 +1159,101 @@ document.querySelectorAll('.chip').forEach(chip=>{
 });
 
 /* ================= AUTH (kunci layar sederhana) ================= */
+
 function togglePw(inputId, btn){
   const input = document.getElementById(inputId);
-  if(input.type === 'password'){ input.type = 'text'; btn.innerText = '🙈'; }
-  else{ input.type = 'password'; btn.innerText = '👁'; }
+
+  if(input.type === 'password'){
+    input.type = 'text';
+    btn.innerText = '🙈';
+  }else{
+    input.type = 'password';
+    btn.innerText = '👁';
+  }
 }
-async function sha256(text){
-  const enc = new TextEncoder().encode(text);
-  const buf = await crypto.subtle.digest('SHA-256', enc);
-  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
-}
-async function getAuthRecord(){
-  try{
-    const v = await storageGet('app-auth');
-    return v ? JSON.parse(v) : null;
-  }catch(e){ return null; }
-}
+
+/* PASSWORD UTAMA */
+const MASTER_PASSWORD = 'Minehmandiri2026?';
+
+/* CEK PASSWORD */
 async function checkAuth(){
-  const auth = await getAuthRecord();
-  if(auth && auth.hash){
-    document.getElementById('auth-title').innerText = 'Masuk';
-    document.getElementById('auth-sub').innerText = 'Masukkan kata sandi untuk membuka Buku Kasus UED-SP.';
-    document.getElementById('auth-login-fields').style.display = 'block';
-    document.getElementById('auth-setup-fields').style.display = 'none';
-  }else{
-    document.getElementById('auth-title').innerText = 'Buat Kata Sandi';
-    document.getElementById('auth-sub').innerText = 'Ini pertama kalinya kamu membuka aplikasi ini. Buat kata sandi untuk mengunci layar.';
-    document.getElementById('auth-login-fields').style.display = 'none';
-    document.getElementById('auth-setup-fields').style.display = 'block';
-  }
+
+  document.getElementById('auth-title').innerText = 'Masuk';
+
+  document.getElementById('auth-sub').innerText =
+    'Masukkan kata sandi untuk membuka Buku Kasus UED-SP.';
+
+  document.getElementById('auth-login-fields').style.display = 'block';
+  document.getElementById('auth-setup-fields').style.display = 'none';
+
 }
+
+/* LOGIN */
 async function attemptLogin(){
+
   const pw = document.getElementById('auth-password-input').value;
-  const auth = await getAuthRecord();
   const errEl = document.getElementById('auth-error');
-  if(!pw){ errEl.innerText = 'Kata sandi wajib diisi.'; return; }
-  const hash = await sha256(pw);
-  if(auth && hash === auth.hash){
+
+  if(!pw){
+    errEl.innerText = 'Kata sandi wajib diisi.';
+    return;
+  }
+
+  if(pw === MASTER_PASSWORD){
+
     errEl.innerText = '';
+
     document.getElementById('auth-password-input').value = '';
+
     unlockApp();
+
   }else{
+
     errEl.innerText = 'Kata sandi salah, coba lagi.';
+
   }
 }
+
+/* FUNGSI LAMA TIDAK DIGUNAKAN */
 async function attemptSetup(){
-  const pw1 = document.getElementById('auth-setup-password').value;
-  const pw2 = document.getElementById('auth-setup-password2').value;
-  const errEl = document.getElementById('auth-error');
-  if(pw1.length < 4){ errEl.innerText = 'Kata sandi minimal 4 karakter.'; return; }
-  if(pw1 !== pw2){ errEl.innerText = 'Kata sandi tidak sama.'; return; }
-  const hash = await sha256(pw1);
-  await storageSet('app-auth', JSON.stringify({hash}));
-  errEl.innerText = '';
-  document.getElementById('auth-setup-password').value = '';
-  document.getElementById('auth-setup-password2').value = '';
   unlockApp();
 }
-async function confirmResetPassword(){
-  if(!confirm('Atur ulang kata sandi? Data orang/surat/pembayaran TIDAK akan hilang, hanya kata sandinya yang direset.')) return;
-  await storageDelete('app-auth');
-  await checkAuth();
-  document.getElementById('auth-error').innerText = '';
-}
-function unlockApp(){
-  document.getElementById('auth-screen').classList.add('hidden');
-  loadApp();
-}
-function lockApp(){
-  closeSidebarDrawer();
-  document.getElementById('auth-screen').classList.remove('hidden');
-  checkAuth();
-}
-document.getElementById('auth-password-input').addEventListener('keydown', (e)=>{ if(e.key==='Enter') attemptLogin(); });
-document.getElementById('auth-setup-password2').addEventListener('keydown', (e)=>{ if(e.key==='Enter') attemptSetup(); });
 
+/* RESET PASSWORD */
+async function confirmResetPassword(){
+  alert('Kata sandi ditetapkan oleh administrator.');
+}
+
+/* BUKA APLIKASI */
+function unlockApp(){
+
+  document.getElementById('auth-screen').classList.add('hidden');
+
+  loadApp();
+
+}
+
+/* KUNCI APLIKASI */
+function lockApp(){
+
+  closeSidebarDrawer();
+
+  document.getElementById('auth-screen').classList.remove('hidden');
+
+  checkAuth();
+
+}
+
+/* ENTER UNTUK LOGIN */
+document.getElementById('auth-password-input').addEventListener('keydown', (e)=>{
+
+  if(e.key === 'Enter'){
+    attemptLogin();
+  }
+
+});
+
+/* ================= END AUTH ================= */
 /* ================= MOBILE DRAWER ================= */
 function openSidebarDrawer(){
   document.getElementById('sidebar').classList.add('open');
