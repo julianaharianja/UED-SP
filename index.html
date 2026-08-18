@@ -417,7 +417,7 @@
 <!-- Auth screen -->
 <div id="auth-screen">
   <div class="auth-card">
-    <div class="kop">BUMKAM Mineh Mandiri &middot; Berkas UED SP</div>
+    <div class="kop">Kas Desa &middot; Arsip Digital</div>
     <h1 id="auth-title">Masuk</h1>
     <p class="sub" id="auth-sub">Masukkan kata sandi untuk membuka Buku Kasus UED-SP.</p>
 
@@ -463,7 +463,7 @@
   </div>
   <div id="sidebar">
     <div id="sidebar-header">
-      <div class="kop">BUMKAM Mineh Mandiri &middot; Berkas UED SP</div>
+      <div class="kop">Kas Desa &middot; Arsip Digital</div>
       <h1>Buku Kasus<br>UED-SP</h1>
       <button class="logout-btn" onclick="lockApp()">🔒 Kunci layar</button>
     </div>
@@ -601,9 +601,11 @@ const DOC_TYPES = {
 };
 
 /* ================= STORAGE HELPERS ================= */
-/* Bekerja dua mode:
-   1. Di dalam Claude.ai (Artifact) -> pakai window.storage (tersimpan di akun Claude kamu)
-   2. Dibuka standalone di browser/localhost -> otomatis pakai IndexedDB (tersimpan di browser itu) */
+/* Mode BERSAMA (shared): siapa pun yang membuka link/aplikasi ini memakai
+   kata sandi yang sama dan melihat data orang/surat/pembayaran yang sama persis.
+   1. Di dalam Claude.ai (Artifact) -> pakai window.storage mode shared
+   2. Dibuka standalone di browser/localhost -> IndexedDB (tetap lokal per-browser,
+      karena di luar Claude.ai tidak ada penyimpanan bersama) */
 let __idb = null;
 function __idbOpen(){
   return new Promise((resolve,reject)=>{
@@ -648,17 +650,17 @@ function __hasNativeStorage(){
 }
 async function storageGet(key){
   if(__hasNativeStorage()){
-    try{ const r = await window.storage.get(key, false); return r ? r.value : null; }
+    try{ const r = await window.storage.get(key, true); return r ? r.value : null; }
     catch(e){ return null; }
   }
   try{ return await __idbGet(key); }catch(e){ return null; }
 }
 async function storageSet(key, value){
-  if(__hasNativeStorage()){ await window.storage.set(key, value, false); return; }
+  if(__hasNativeStorage()){ await window.storage.set(key, value, true); return; }
   await __idbSet(key, value);
 }
 async function storageDelete(key){
-  if(__hasNativeStorage()){ try{ await window.storage.delete(key, false); }catch(e){} return; }
+  if(__hasNativeStorage()){ try{ await window.storage.delete(key, true); }catch(e){} return; }
   try{ await __idbDelete(key); }catch(e){}
 }
 
