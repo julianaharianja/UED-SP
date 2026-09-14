@@ -1,930 +1,631 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Buku Kasus UED-SP - Kas Desa / BUMKam</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    .stamp-red {
-      color: #dc2626;
-      border: 3px solid #dc2626;
-      border-radius: 8px;
-      padding: 4px 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      transform: rotate(-5deg);
-      display: inline-block;
-      box-shadow: 0 0 0 2px #fff, 0 0 0 5px #dc2626;
-    }
-    .stamp-green {
-      color: #16a34a;
-      border: 3px solid #16a34a;
-      border-radius: 8px;
-      padding: 4px 12px;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1.5px;
-      transform: rotate(-5deg);
-      display: inline-block;
-      box-shadow: 0 0 0 2px #fff, 0 0 0 5px #16a34a;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buku Kasus UED-SP - Kas Desa / BUMKam</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .stamp-red {
+      color: #dc2626;
+      border: 3px solid #dc2626;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transform: rotate(-5deg);
+      display: inline-block;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 5px #dc2626;
+    }
+    .stamp-green {
+      color: #16a34a;
+      border: 3px solid #16a34a;
+      border-radius: 8px;
+      padding: 4px 12px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      transform: rotate(-5deg);
+      display: inline-block;
+      box-shadow: 0 0 0 2px #fff, 0 0 0 5px #16a34a;
+    }
+  </style>
 </head>
 <body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
 
-  <!-- PIN Protection Overlay -->
-  <div id="pinOverlay" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
-    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
-      <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
-        <i class="fas fa-lock"></i>
-      </div>
-      <h2 class="text-xl font-bold text-slate-800 mb-1">Akses Terkunci</h2>
-      <p class="text-xs text-slate-500 mb-6">Masukkan kata sandi master untuk membuka aplikasi Buku Kasus UED-SP.</p>
-      <form id="pinForm" onsubmit="handlePinSubmit(event)">
-        <input type="password" id="pinInput" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-center text-lg font-bold tracking-widest mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan Sandi" required>
-        <p id="pinError" class="text-red-500 text-xs hidden mb-3">Kata sandi salah. Silakan coba lagi.</p>
-        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition shadow-lg">Buka Kunci</button>
-      </form>
-    </div>
-  </div>
-
-  <!-- Main App Layout -->
-  <div class="flex flex-col min-h-screen">
-    
-    <!-- Top Bar -->
-    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-        <div class="flex items-center space-x-3">
-          <div class="bg-blue-600 p-2 rounded-lg text-white">
-            <i class="fas fa-book-bookmark text-lg"></i>
-          </div>
-          <div>
-            <h1 class="font-bold text-base sm:text-lg leading-tight">Buku Kasus UED-SP</h1>
-            <p class="text-xs text-slate-400">Kas Desa / BUMKam • Arsip Digital</p>
-          </div>
-        </div>
-        <button onclick="lockApp()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-2">
-          <i class="fas fa-lock text-slate-400"></i> Kunci Layar
-        </button>
-      </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
-      
-      <!-- Left Sidebar: People List & Dashboard -->
-      <section class="lg:col-span-4 flex flex-col gap-4">
-        
-        <!-- Summary Stats Card -->
-        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-2 gap-3 text-center">
-          <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
-            <span class="block text-xs text-blue-600 font-semibold uppercase tracking-wider">Total Orang</span>
-            <span id="statTotalPeople" class="text-2xl font-black text-blue-900">0</span>
-          </div>
-          <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
-            <span class="block text-xs text-amber-600 font-semibold uppercase tracking-wider">Belum Lengkap</span>
-            <span id="statIncomplete" class="text-2xl font-black text-amber-900">0</span>
-          </div>
-        </div>
-
-        <!-- People Directory Card -->
-        <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col flex-1 overflow-hidden min-h-[400px]">
-          
-          <!-- Search & Filter Controls -->
-          <div class="p-4 border-b border-slate-100 space-y-3">
-            <div class="relative">
-              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-              <input type="text" id="searchInput" oninput="filterPeople()" placeholder="Cari nama..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
-            </div>
-            
-            <div class="flex items-center gap-1 overflow-x-auto pb-1 text-xs">
-              <button onclick="setFilterRole('ALL')" id="btnFilterAll" class="px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white">Semua</button>
-              <button onclick="setFilterRole('nasabah')" id="btnFilterNasabah" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Nasabah</button>
-              <button onclick="setFilterRole('pengurus')" id="btnFilterPengurus" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Pengurus</button>
-              <button onclick="toggleIncompleteOnly()" id="btnFilterIncomplete" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 ml-auto flex items-center gap-1">
-                <i class="fas fa-exclamation-circle text-amber-500"></i> Belum Lengkap
-              </button>
-            </div>
-          </div>
-
-          <!-- People List Item Container -->
-          <div id="peopleList" class="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1">
-            <div class="p-8 text-center text-slate-400 text-sm">Memuat data...</div>
-          </div>
-
-          <!-- Add Person Button -->
-          <div class="p-3 bg-slate-50 border-t border-slate-100">
-            <button onclick="openPersonModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition shadow">
-              <i class="fas fa-user-plus"></i> Tambah Orang Baru
-            </button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Right Main Content: Person Details & Documents -->
-      <section id="detailSection" class="lg:col-span-8 flex flex-col gap-6">
-        <div id="emptyDetailState" class="bg-white rounded-xl p-12 text-center border border-slate-200 flex flex-col items-center justify-center min-h-[400px]">
-          <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-3xl mb-4">
-            <i class="fas fa-folder-open"></i>
-          </div>
-          <h3 class="text-lg font-bold text-slate-700">Tidak Ada Data Dipilih</h3>
-          <p class="text-sm text-slate-400 max-w-sm mt-1">Pilih salah satu nama dari daftar di sebelah kiri untuk melihat detail dokumen dan riwayat pembayaran.</p>
-        </div>
-
-        <div id="activeDetailState" class="hidden flex-col gap-6">
-          
-          <!-- Person Profile Header Card -->
-          <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
-            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
-              <div>
-                <div class="flex items-center gap-2 mb-1">
-                  <h2 id="personDetailName" class="text-2xl font-black text-slate-900">Nama Orang</h2>
-                  <div id="personDetailRoles" class="flex gap-1"></div>
-                </div>
-                <div class="space-y-1 text-sm text-slate-600 mt-2">
-                  <p id="personDetailUtang" class="flex items-center gap-2 text-red-600 font-bold"><i class="fas fa-money-bill-wave text-red-500 w-4"></i> Total Utang UED-SP: Rp 0</p>
-                  <p id="personDetailAlamat" class="flex items-center gap-2"><i class="fas fa-location-dot text-slate-400 w-4"></i> -</p>
-                  <p id="personDetailTotalPaid" class="flex items-center gap-2 font-bold text-emerald-600"><i class="fas fa-wallet text-emerald-500 w-4"></i> Total dibayar: Rp 0</p>
-                </div>
-              </div>
-
-              <!-- Stamp Indicator & Actions -->
-              <div class="flex flex-col items-end gap-3">
-                <div id="completenessStamp" class="stamp-red">BELUM LENGKAP</div>
-                <div class="flex items-center gap-2">
-                  <button onclick="openPersonModal(true)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Edit</button>
-                  <button onclick="deleteCurrentPerson()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg">Hapus</button>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <!-- Document Tabs & Payment Section -->
-          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-            
-            <!-- Navigation Tabs -->
-            <div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto text-sm font-medium">
-              <button onclick="switchTab('panggilan')" id="tabBtnPanggilan" class="py-3 px-5 border-b-2 border-blue-600 text-blue-600 bg-white font-semibold flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-envelope"></i> Surat Panggilan <span id="badgePanggilan" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
-              </button>
-              <button onclick="switchTab('terima')" id="tabBtnTerima" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-receipt"></i> Tanda Terima <span id="badgeTerima" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
-              </button>
-              <button onclick="switchTab('iktikad')" id="tabBtnIktikad" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-handshake"></i> Surat Iktikad Baik <span id="badgeIktikad" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
-              </button>
-              <button onclick="switchTab('perjanjian')" id="tabBtnPerjanjian" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-file-contract"></i> Perjanjian Pelunasan <span id="badgePerjanjian" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
-              </button>
-              <button onclick="switchTab('pembayaran')" id="tabBtnPembayaran" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
-                <i class="fas fa-money-bill-wave"></i> Pembayaran <span id="badgePembayaran" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
-              </button>
-            </div>
-
-            <!-- Tab Content Display Area -->
-            <div class="p-6">
-              
-              <!-- Documents Display Header -->
-              <div id="docHeaderControls" class="flex justify-between items-center mb-6">
-                <h3 id="currentTabTitle" class="font-bold text-slate-800 text-base">Foto Surat Panggilan</h3>
-                <button onclick="openDocModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition shadow-sm">
-                  <i class="fas fa-plus"></i> Tambah
-                </button>
-              </div>
-
-              <!-- Document / Photo List Grid -->
-              <div id="docListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <p class="text-slate-400 text-sm">Belum ada foto/dokumen diunggah.</p>
-              </div>
-
-              <!-- Payment List Container (Only visible on Pembayaran Tab) -->
-              <div id="paymentContainer" class="hidden space-y-4">
-                <div id="paymentList" class="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden">
-                  <p class="p-4 text-slate-400 text-sm">Belum ada riwayat pembayaran.</p>
-                </div>
-              </div>
-
-            </div>
-          </div>
-        </div>
-      </section>
-    </main>
-  </div>
-
-  <!-- Modal: Add/Edit Person -->
-  <div id="personModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-40 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <h3 id="personModalTitle" class="text-lg font-bold text-slate-800 mb-4">Tambah Orang Baru</h3>
-      <form id="personForm" onsubmit="savePerson(event)" class="space-y-4">
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap</label>
-          <input type="text" id="personNameInput" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Peran (Bisa Pilih Lebih Dari Satu)</label>
-          <div class="flex items-center gap-4 text-sm mt-1">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="roleNasabah" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"> Nasabah
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="checkbox" id="rolePengurus" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"> Pengurus
-            </label>
-          </div>
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Total Utang UED-SP (Rp)</label>
-          <input type="number" id="personUtangInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: 5000000">
-        </div>
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Alamat Lengkap</label>
-          <textarea id="personAlamatInput" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-        </div>
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closePersonModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Batal</button>
-          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Modal: Add/Edit Document / Payment -->
-  <div id="docModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-40 hidden items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
-      <h3 id="docModalTitle" class="text-lg font-bold text-slate-800 mb-4">Tambah Dokumen</h3>
-      <form id="docForm" onsubmit="saveDocument(event)" class="space-y-4">
-        
-        <!-- Document File/PDF/Word Upload -->
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Unggah Berkas (Foto, PDF, atau Word)</label>
-          <input type="file" id="docFileInput" accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
-          <p class="text-[10px] text-slate-400 mt-1">Mendukung gambar (kompresi otomatis), PDF, dan Microsoft Word. (Kosongkan jika tidak ingin mengubah berkas saat edit)</p>
-        </div>
-
-        <!-- Extra fields for Payment Tab -->
-        <div id="paymentExtraFields" class="hidden space-y-3 pt-2 border-t border-slate-100">
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nominal Pembayaran (Rp)</label>
-            <input type="number" id="payAmountInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="100000">
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Metode Pembayaran</label>
-            <select id="payMethodInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-              <option value="Tunai">Tunai</option>
-              <option value="Transfer Bank">Transfer Bank</option>
-            </select>
-          </div>
-          <div>
-            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Pembayaran</label>
-            <input type="date" id="payDateInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Catatan (opsional)</label>
-          <textarea id="docNotesInput" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
-        </div>
-
-        <div class="flex justify-end gap-2 pt-2">
-          <button type="button" onclick="closeDocModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Batal</button>
-          <button type="submit" id="btnSaveDoc" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">Simpan</button>
-        </div>
-      </form>
-    </div>
-  </div>
-
-  <!-- Image Lightbox Modal -->
-  <div id="imageLightbox" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
-    <img id="lightboxImg" class="max-w-full max-h-full rounded-lg object-contain" src="" alt="Pratinjau Foto">
-  </div>
-
-  <!-- Firebase Integration -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
-    import { 
-      getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp 
-    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
-
-    // Firebase Configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyB_REDACTED",
-      authDomain: "ued-sp.firebaseapp.com",
-      projectId: "ued-sp",
-      storageBucket: "ued-sp.firebasestorage.app",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    // Master App State
-    let state = {
-      people: [],
-      selectedPersonId: null,
-      selectedPersonData: null,
-      activeTab: 'panggilan',
-      filterRole: 'ALL',
-      filterIncompleteOnly: false,
-      searchQuery: '',
-      unsubscribePersonListener: null,
-      editingDocId: null
-    };
-
-    // Global Lock & Master Auth Logic
-    const MASTER_PIN = "Minehmandiri2026?";
-
-    window.handlePinSubmit = function(e) {
-      e.preventDefault();
-      const pin = document.getElementById('pinInput').value;
-      if (pin === MASTER_PIN) {
-        sessionStorage.setItem('ued_authenticated', 'true');
-        document.getElementById('pinOverlay').classList.add('hidden');
-        document.getElementById('pinInput').value = '';
-        document.getElementById('pinError').classList.add('hidden');
-      } else {
-        document.getElementById('pinError').classList.remove('hidden');
-      }
-    };
-
-    window.lockApp = function() {
-      sessionStorage.removeItem('ued_authenticated');
-      document.getElementById('pinOverlay').classList.remove('hidden');
-    };
-
-    function checkAuthStatus() {
-      if (sessionStorage.getItem('ued_authenticated') === 'true') {
-        document.getElementById('pinOverlay').classList.add('hidden');
-      } else {
-        document.getElementById('pinOverlay').classList.remove('hidden');
-      }
-    }
-
-    // Process & Compress Image or Handle PDF/Word to Base64
-    async function processFile(file) {
-      return new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        
-        if (file.type === 'application/pdf' || 
-            file.type.includes('wordprocessingml') || 
-            file.type.includes('msword')) {
-          reader.onload = (e) => resolve(e.target.result);
-          reader.onerror = reject;
-          reader.readAsDataURL(file);
-          return;
-        }
-
-        reader.onload = (e) => {
-          const img = new Image();
-          img.onload = () => {
-            const canvas = document.createElement('canvas');
-            let width = img.width;
-            let height = img.height;
-            const maxDim = 1200;
-
-            if (width > maxDim || height > maxDim) {
-              if (width > height) {
-                height = Math.round((height * maxDim) / width);
-                width = maxDim;
-              } else {
-                width = Math.round((width * maxDim) / height);
-                height = maxDim;
-              }
-            }
-
-            canvas.width = width;
-            canvas.height = height;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, width, height);
-
-            const base64Url = canvas.toDataURL('image/jpeg', 0.8);
-            resolve(base64Url);
-          };
-          img.onerror = reject;
-          img.src = e.target.result;
-        };
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    // Realtime Sync for People Directory
-    function listenToPeople() {
-      const q = query(collection(db, "people"), orderBy("nama", "asc"));
-      onSnapshot(q, (snapshot) => {
-        state.people = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        renderPeopleList();
-        updateGlobalStats();
-
-        if (state.selectedPersonId) {
-          const updated = state.people.find(p => p.id === state.selectedPersonId);
-          if (updated) {
-            state.selectedPersonData = updated;
-            renderSelectedPersonDetail();
-          } else {
-            state.selectedPersonId = null;
-            state.selectedPersonData = null;
-            renderSelectedPersonDetail();
-          }
-        }
-      });
-    }
-
-    // Render Directory List Left Panel
-    function renderPeopleList() {
-      const container = document.getElementById('peopleList');
-      let filtered = [...state.people];
-
-      if (state.searchQuery) {
-        const q = state.searchQuery.toLowerCase();
-        filtered = filtered.filter(p => p.nama?.toLowerCase().includes(q));
-      }
-
-      if (state.filterRole !== 'ALL') {
-        filtered = filtered.filter(p => p.roles && p.roles.includes(state.filterRole));
-      }
-
-      if (state.filterIncompleteOnly) {
-        filtered = filtered.filter(p => !checkCompleteness(p.id));
-      }
-
-      if (filtered.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Tidak ada data ditemukan.</div>`;
-        return;
-      }
-
-      container.innerHTML = filtered.map(person => {
-        const isSelected = person.id === state.selectedPersonId;
-        const roles = person.roles || [];
-        const isComplete = checkCompleteness(person.id);
-
-        return `
-          <div onclick="selectPerson('${person.id}')" class="p-3 rounded-lg cursor-pointer transition flex items-center justify-between ${isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-slate-50'}">
-            <div class="flex items-center gap-3">
-              <div class="w-2.5 h-2.5 rounded-full ${isComplete ? 'bg-emerald-500' : 'bg-amber-500'}"></div>
-              <div>
-                <h4 class="font-bold text-sm text-slate-800 leading-snug">${escapeHtml(person.nama)}</h4>
-                <div class="flex gap-1 mt-0.5">
-                  ${roles.map(r => `<span class="text-[10px] px-1.5 py-0.2 bg-slate-200 text-slate-600 rounded uppercase font-semibold">${r}</span>`).join('')}
-                </div>
-              </div>
-            </div>
-            <i class="fas fa-chevron-right text-xs ${isSelected ? 'text-blue-600' : 'text-slate-300'}"></i>
-          </div>
-        `;
-      }).join('');
-    }
-
-    function checkCompleteness(personId) {
-      const person = state.people.find(p => p.id === personId);
-      if (!person) return false;
-      return person.isComplete || false;
-    }
-
-    function updateGlobalStats() {
-      document.getElementById('statTotalPeople').textContent = state.people.length;
-      const incompleteCount = state.people.filter(p => !p.isComplete).length;
-      document.getElementById('statIncomplete').textContent = incompleteCount;
-    }
-
-    // Select Person
-    window.selectPerson = function(id) {
-      state.selectedPersonId = id;
-      state.selectedPersonData = state.people.find(p => p.id === id);
-      renderPeopleList();
-      renderSelectedPersonDetail();
-      listenToPersonSubcollections(id);
-    };
-
-    function renderSelectedPersonDetail() {
-      const emptyState = document.getElementById('emptyDetailState');
-      const activeState = document.getElementById('activeDetailState');
-
-      if (!state.selectedPersonData) {
-        emptyState.classList.remove('hidden');
-        emptyState.classList.add('flex');
-        activeState.classList.add('hidden');
-        activeState.classList.remove('flex');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-      emptyState.classList.remove('flex');
-      activeState.classList.remove('hidden');
-      activeState.classList.add('flex');
-
-      const p = state.selectedPersonData;
-      const totalUtang = Number(p.utang) || 0;
-      document.getElementById('personDetailName').textContent = p.nama || '-';
-      document.getElementById('personDetailUtang').innerHTML = `<i class="fas fa-money-bill-wave text-red-500 w-4"></i> Total Utang UED-SP: Rp ${totalUtang.toLocaleString('id-ID')}`;
-      document.getElementById('personDetailAlamat').innerHTML = `<i class="fas fa-location-dot text-slate-400 w-4"></i> ${p.alamat || '-'}`;
-
-      const rolesContainer = document.getElementById('personDetailRoles');
-      rolesContainer.innerHTML = (p.roles || []).map(r => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 font-semibold rounded uppercase">${r}</span>`).join('');
-
-      updateCompletenessStamp();
-    }
-
-    // Realtime Sub-collections for Docs and Payments
-    function listenToPersonSubcollections(personId) {
-      if (state.unsubscribePersonListener) {
-        state.unsubscribePersonListener();
-      }
-
-      const q = query(collection(db, "people", personId, "documents"));
-      state.unsubscribePersonListener = onSnapshot(q, (snapshot) => {
-        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        state.personDocs = docs;
-        renderActiveTabContent();
-        evaluateCompletenessStatus(personId, docs);
-        calculateTotalPaid(docs);
-      });
-    }
-
-    function calculateTotalPaid(docs) {
-      const payments = docs.filter(d => d.type === 'pembayaran');
-      const totalPaid = payments.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
-      const paidEl = document.getElementById('personDetailTotalPaid');
-      if (paidEl) {
-        paidEl.innerHTML = `<i class="fas fa-wallet text-emerald-500 w-4"></i> Total dibayar: Rp ${totalPaid.toLocaleString('id-ID')}`;
-      }
-    }
-
-    function evaluateCompletenessStatus(personId, docs) {
-      const requiredTypes = ['panggilan', 'terima', 'iktikad', 'perjanjian'];
-      const presentTypes = new Set(docs.map(d => d.type));
-      const isAllPresent = requiredTypes.every(type => presentTypes.has(type));
-
-      const stampEl = document.getElementById('completenessStamp');
-      if (stampEl) {
-        if (isAllPresent) {
-          stampEl.className = 'stamp-green';
-          stampEl.textContent = 'DOKUMEN LENGKAP';
-        } else {
-          stampEl.className = 'stamp-red';
-          stampEl.textContent = 'BELUM LENGKAP';
-        }
-      }
-
-      const personRef = doc(db, "people", personId);
-      updateDoc(personRef, { isComplete: isAllPresent }).catch(() => {});
-    }
-
-    function updateCompletenessStamp() {
-      if (!state.personDocs) return;
-      evaluateCompletenessStatus(state.selectedPersonId, state.personDocs);
-    }
-
-    // Switch Tabs
-    window.switchTab = function(tabName) {
-      state.activeTab = tabName;
-      
-      ['panggilan', 'terima', 'iktikad', 'perjanjian', 'pembayaran'].forEach(t => {
-        const btn = document.getElementById(`tabBtn${capitalize(t)}`);
-        if (btn) {
-          if (t === tabName) {
-            btn.className = 'py-3 px-5 border-b-2 border-blue-600 text-blue-600 bg-white font-semibold flex items-center gap-2 whitespace-nowrap';
-          } else {
-            btn.className = 'py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap';
-          }
-        }
-      });
-
-      renderActiveTabContent();
-    };
-
-    function renderActiveTabContent() {
-      const docs = state.personDocs || [];
-      const docGrid = document.getElementById('docListGrid');
-      const payContainer = document.getElementById('paymentContainer');
-
-      ['panggilan', 'terima', 'iktikad', 'perjanjian', 'pembayaran'].forEach(t => {
-        const count = docs.filter(d => d.type === t).length;
-        const badgeEl = document.getElementById(`badge${capitalize(t)}`);
-        if (badgeEl) badgeEl.textContent = count;
-      });
-
-      const tabTitles = {
-        panggilan: 'Foto/Dokumen Surat Panggilan 1',
-        terima: 'Foto/Dokumen Tanda Terima Surat',
-        iktikad: 'Foto/Dokumen Surat Iktikad Baik',
-        perjanjian: 'Foto/Dokumen Perjanjian Pelunasan Pembayaran',
-        pembayaran: 'Riwayat & Bukti Pembayaran'
-      };
-
-      const titleEl = document.getElementById('currentTabTitle');
-      if (titleEl) titleEl.textContent = tabTitles[state.activeTab];
-
-      if (state.activeTab === 'pembayaran') {
-        docGrid.classList.add('hidden');
-        payContainer.classList.remove('hidden');
-        renderPaymentList(docs.filter(d => d.type === 'pembayaran'));
-      } else {
-        docGrid.classList.remove('hidden');
-        payContainer.classList.add('hidden');
-        renderDocumentGrid(docs.filter(d => d.type === state.activeTab));
-      }
-    }
-
-    function renderFilePreviewHTML(url) {
-      if (!url) return `<div class="h-48 bg-slate-100 flex items-center justify-center text-slate-400">Tidak ada berkas</div>`;
-      
-      if (url.startsWith('data:application/pdf') || url.includes('application/pdf')) {
-        return `<div class="h-48 bg-red-50 flex flex-col items-center justify-center text-red-600 gap-2 p-4">
-                  <i class="fas fa-file-pdf text-4xl"></i>
-                  <span class="text-xs font-semibold">Dokumen PDF</span>
-                  <a href="${url}" target="_blank" class="mt-2 px-3 py-1.5 bg-red-600 text-white rounded-lg text-xs font-medium hover:bg-red-700 transition">Buka / Unduh PDF</a>
-                </div>`;
-      } else if (url.includes('wordprocessingml') || url.includes('msword') || url.includes('.doc')) {
-        return `<div class="h-48 bg-blue-50 flex flex-col items-center justify-center text-blue-600 gap-2 p-4">
-                  <i class="fas fa-file-word text-4xl"></i>
-                  <span class="text-xs font-semibold">Dokumen Microsoft Word</span>
-                  <a href="${url}" download="Dokumen_Word.docx" class="mt-2 px-3 py-1.5 bg-blue-600 text-white rounded-lg text-xs font-medium hover:bg-blue-700 transition">Unduh & Edit Word</a>
-                </div>`;
-      } else {
-        return `<img src="${url}" class="w-full h-48 object-cover cursor-pointer hover:opacity-90 transition" onclick="openLightbox('${url}')" alt="Dokumen">`;
-      }
-    }
-
-    function renderDocumentGrid(docs) {
-      const grid = document.getElementById('docListGrid');
-      if (docs.length === 0) {
-        grid.innerHTML = `<p class="text-slate-400 text-sm col-span-full">Belum ada foto/dokumen diunggah pada bagian ini.</p>`;
-        return;
-      }
-
-      grid.innerHTML = docs.map(doc => `
-        <div class="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm flex flex-col justify-between">
-          <div>
-            ${renderFilePreviewHTML(doc.fileUrl)}
-            <div class="p-3">
-              <p class="text-xs text-slate-600">${escapeHtml(doc.notes || 'Tanpa catatan')}</p>
-            </div>
-          </div>
-          <div class="p-3 bg-slate-50 border-t border-slate-100 flex justify-end gap-2">
-            <button onclick="editDocument('${doc.id}')" class="px-2.5 py-1 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-medium rounded">Edit</button>
-            <button onclick="deleteDocument('${doc.id}')" class="px-2.5 py-1 bg-red-100 hover:bg-red-200 text-red-700 text-xs font-medium rounded">Hapus</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderPaymentList(payments) {
-      const container = document.getElementById('paymentList');
-      if (payments.length === 0) {
-        container.innerHTML = `<p class="p-4 text-slate-400 text-sm">Belum ada riwayat pembayaran.</p>`;
-        return;
-      }
-
-      container.innerHTML = payments.map(pay => `
-        <div class="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div class="flex items-start gap-3">
-            <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center shrink-0">
-              <i class="fas fa-money-bill-wave"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-slate-800 text-base">Rp ${Number(pay.amount || 0).toLocaleString('id-ID')}</h4>
-              <p class="text-xs text-slate-500 mt-0.5">Metode: <span class="font-semibold text-slate-700">${escapeHtml(pay.method || 'Tunai')}</span> • Tanggal: <span class="font-semibold text-slate-700">${pay.date || '-'}</span></p>
-              ${pay.notes ? `<p class="text-xs text-slate-600 mt-1 italic">${escapeHtml(pay.notes)}</p>` : ''}
-              ${pay.fileUrl ? `<div class="mt-2"><a href="${pay.fileUrl}" target="_blank" class="text-xs text-blue-600 hover:underline flex items-center gap-1"><i class="fas fa-paperclip"></i> Lihat Bukti Berkas</a></div>` : ''}
-            </div>
-          </div>
-          <div class="flex items-center gap-2 self-end sm:self-center">
-            <button onclick="editDocument('${pay.id}')" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-medium rounded-lg">Edit</button>
-            <button onclick="deleteDocument('${pay.id}')" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-lg">Hapus</button>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    // Modal Helpers
-    window.openPersonModal = function(isEdit = false) {
-      const modal = document.getElementById('personModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-
-      if (isEdit && state.selectedPersonData) {
-        document.getElementById('personModalTitle').textContent = 'Edit Data Orang';
-        document.getElementById('personNameInput').value = state.selectedPersonData.nama || '';
-        document.getElementById('personUtangInput').value = state.selectedPersonData.utang || '';
-        document.getElementById('personAlamatInput').value = state.selectedPersonData.alamat || '';
-        document.getElementById('roleNasabah').checked = (state.selectedPersonData.roles || []).includes('nasabah');
-        document.getElementById('rolePengurus').checked = (state.selectedPersonData.roles || []).includes('pengurus');
-      } else {
-        document.getElementById('personModalTitle').textContent = 'Tambah Orang Baru';
-        document.getElementById('personForm').reset();
-      }
-    };
-
-    window.closePersonModal = function() {
-      const modal = document.getElementById('personModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    };
-
-    window.openDocModal = function() {
-      state.editingDocId = null;
-      const modal = document.getElementById('docModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-      document.getElementById('docModalTitle').textContent = state.activeTab === 'pembayaran' ? 'Tambah Riwayat Pembayaran' : 'Tambah Dokumen';
-      document.getElementById('docForm').reset();
-
-      const extraFields = document.getElementById('paymentExtraFields');
-      if (state.activeTab === 'pembayaran') {
-        extraFields.classList.remove('hidden');
-      } else {
-        extraFields.classList.add('hidden');
-      }
-    };
-
-    window.closeDocModal = function() {
-      const modal = document.getElementById('docModal');
-      modal.classList.add('hidden');
-      modal.classList.remove('flex');
-    };
-
-    window.openLightbox = function(url) {
-      const lb = document.getElementById('imageLightbox');
-      document.getElementById('lightboxImg').src = url;
-      lb.classList.remove('hidden');
-      lb.classList.add('flex');
-    };
-
-    window.closeLightbox = function() {
-      const lb = document.getElementById('imageLightbox');
-      lb.classList.add('hidden');
-      lb.classList.remove('flex');
-    };
-
-    // Save Person
-    window.savePerson = async function(e) {
-      e.preventDefault();
-      const nama = document.getElementById('personNameInput').value.trim();
-      const utang = document.getElementById('personUtangInput').value;
-      const alamat = document.getElementById('personAlamatInput').value.trim();
-      
-      const roles = [];
-      if (document.getElementById('roleNasabah').checked) roles.push('nasabah');
-      if (document.getElementById('rolePengurus').checked) roles.push('pengurus');
-
-      try {
-        if (state.selectedPersonId && document.getElementById('personModalTitle').textContent.includes('Edit')) {
-          await updateDoc(doc(db, "people", state.selectedPersonId), {
-            nama, utang: Number(utang) || 0, alamat, roles
-          });
-        } else {
-          const docRef = await addDoc(collection(db, "people"), {
-            nama, utang: Number(utang) || 0, alamat, roles, isComplete: false, createdAt: serverTimestamp()
-          });
-          state.selectedPersonId = docRef.id;
-        }
-        closePersonModal();
-      } catch (err) {
-        alert('Gagal menyimpan data: ' + err.message);
-      }
-    };
-
-    window.deleteCurrentPerson = async function() {
-      if (!state.selectedPersonId) return;
-      if (confirm('Apakah Anda yakin ingin menghapus orang ini beserta seluruh dokumennya?')) {
-        try {
-          await deleteDoc(doc(db, "people", state.selectedPersonId));
-          state.selectedPersonId = null;
-          state.selectedPersonData = null;
-          renderSelectedPersonDetail();
-        } catch (err) {
-          alert('Gagal menghapus: ' + err.message);
-        }
-      }
-    };
-
-    // Save Document
-    window.saveDocument = async function(e) {
-      e.preventDefault();
-      if (!state.selectedPersonId) return;
-
-      const fileInput = document.getElementById('docFileInput');
-      const notes = document.getElementById('docNotesInput').value.trim();
-      let fileUrl = '';
-
-      if (fileInput.files.length > 0) {
-        try {
-          fileUrl = await processFile(fileInput.files[0]);
-        } catch (err) {
-          alert('Gagal memproses berkas');
-          return;
-        }
-      }
-
-      const docData = {
-        type: state.activeTab,
-        notes,
-        updatedAt: serverTimestamp()
-      };
-
-      if (fileUrl) docData.fileUrl = fileUrl;
-
-      if (state.activeTab === 'pembayaran') {
-        docData.amount = Number(document.getElementById('payAmountInput').value) || 0;
-        docData.method = document.getElementById('payMethodInput').value;
-        docData.date = document.getElementById('payDateInput').value;
-      }
-
-      try {
-        if (state.editingDocId) {
-          await updateDoc(doc(db, "people", state.selectedPersonId, "documents", state.editingDocId), docData);
-        } else {
-          docData.createdAt = serverTimestamp();
-          await addDoc(collection(db, "people", state.selectedPersonId, "documents"), docData);
-        }
-        closeDocModal();
-      } catch (err) {
-        alert('Gagal menyimpan dokumen: ' + err.message);
-      }
-    };
-
-    window.editDocument = function(docId) {
-      const item = state.personDocs.find(d => d.id === docId);
-      if (!item) return;
-
-      state.editingDocId = docId;
-      const modal = document.getElementById('docModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
-
-      document.getElementById('docModalTitle').textContent = 'Edit Dokumen / Pembayaran';
-      document.getElementById('docNotesInput').value = item.notes || '';
-      
-      const extraFields = document.getElementById('paymentExtraFields');
-      if (item.type === 'pembayaran') {
-        extraFields.classList.remove('hidden');
-        document.getElementById('payAmountInput').value = item.amount || '';
-        document.getElementById('payMethodInput').value = item.method || 'Tunai';
-        document.getElementById('payDateInput').value = item.date || '';
-      } else {
-        extraFields.classList.add('hidden');
-      }
-    };
-
-    window.deleteDocument = async function(docId) {
-      if (!state.selectedPersonId) return;
-      if (confirm('Hapus berkas/dokumen ini?')) {
-        try {
-          await deleteDoc(doc(db, "people", state.selectedPersonId, "documents", docId));
-        } catch (err) {
-          alert('Gagal menghapus dokumen');
-        }
-      }
-    };
-
-    // Filter & Search Controls
-    window.filterPeople = function() {
-      state.searchQuery = document.getElementById('searchInput').value;
-      renderPeopleList();
-    };
-
-    window.setFilterRole = function(role) {
-      state.filterRole = role;
-      ['ALL', 'nasabah', 'pengurus'].forEach(r => {
-        const btn = document.getElementById(`btnFilter${capitalize(r)}`);
-        if (btn) {
-          if (r === role) {
-            btn.className = 'px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white';
-          } else {
-            btn.className = 'px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200';
-          }
-        }
-      });
-      renderPeopleList();
-    };
-
-    window.toggleIncompleteOnly = function() {
-      state.filterIncompleteOnly = !state.filterIncompleteOnly;
-      const btn = document.getElementById('btnFilterIncomplete');
-      if (state.filterIncompleteOnly) {
-        btn.className = 'px-3 py-1.5 rounded-lg font-medium bg-amber-500 text-white ml-auto flex items-center gap-1';
-      } else {
-        btn.className = 'px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 ml-auto flex items-center gap-1';
-      }
-      renderPeopleList();
-    };
-
-    function capitalize(str) {
-      if (!str) return '';
-      return str.charAt(0).toUpperCase() + str.slice(1);
-    }
-
-    function escapeHtml(str) {
-      if (!str) return '';
-      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-    }
-
-    // Initialize
-    checkAuthStatus();
-    listenToPeople();
-  </script>
-</body>
-</html>
+  <!-- PIN Protection Overlay -->
+  <div id="pinOverlay" class="fixed inset-0 bg-slate-900 bg-opacity-95 z-50 flex items-center justify-center p-4">
+    <div class="bg-white p-6 sm:p-8 rounded-2xl shadow-2xl max-w-sm w-full text-center">
+      <div class="w-16 h-16 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h2 class="text-xl font-bold text-slate-800 mb-1">Akses Terkunci</h2>
+      <p class="text-xs text-slate-500 mb-6">Masukkan kata sandi master untuk membuka aplikasi Buku Kasus UED-SP.</p>
+      <form id="pinForm" onsubmit="handlePinSubmit(event)">
+        <input type="password" id="pinInput" class="w-full px-4 py-3 border border-slate-300 rounded-xl text-center text-lg font-bold tracking-widest mb-4 focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Masukkan Sandi" required>
+        <p id="pinError" class="text-red-500 text-xs hidden mb-3">Kata sandi salah. Silakan coba lagi.</p>
+        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-xl transition shadow-lg">Buka Kunci</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Main App Layout -->
+  <div class="flex flex-col min-h-screen">
+    
+    <!-- Top Bar -->
+    <header class="bg-slate-900 text-white shadow-md sticky top-0 z-30">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <div class="bg-blue-600 p-2 rounded-lg text-white">
+            <i class="fas fa-book-bookmark text-lg"></i>
+          </div>
+          <div>
+            <h1 class="font-bold text-base sm:text-lg leading-tight">Buku Kasus UED-SP</h1>
+            <p class="text-xs text-slate-400">Kas Desa / BUMKam • Arsip Digital</p>
+          </div>
+        </div>
+        <button onclick="lockApp()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 py-2 px-3 rounded-lg border border-slate-700 flex items-center gap-2">
+          <i class="fas fa-lock text-slate-400"></i> Kunci Layar
+        </button>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+      
+      <!-- Left Sidebar: People List & Dashboard -->
+      <section class="lg:col-span-4 flex flex-col gap-4">
+        
+        <!-- Summary Stats Card -->
+        <div class="bg-white p-4 rounded-xl shadow-sm border border-slate-200 grid grid-cols-2 gap-3 text-center">
+          <div class="bg-blue-50 p-3 rounded-lg border border-blue-100">
+            <span class="block text-xs text-blue-600 font-semibold uppercase tracking-wider">Total Orang</span>
+            <span id="statTotalPeople" class="text-2xl font-black text-blue-900">0</span>
+          </div>
+          <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+            <span class="block text-xs text-amber-600 font-semibold uppercase tracking-wider">Belum Lengkap</span>
+            <span id="statIncomplete" class="text-2xl font-black text-amber-900">0</span>
+          </div>
+        </div>
+
+        <!-- People Directory Card -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 flex flex-col flex-1 overflow-hidden min-h-[400px]">
+          
+          <!-- Search & Filter Controls -->
+          <div class="p-4 border-b border-slate-100 space-y-3">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+              <input type="text" id="searchInput" oninput="filterPeople()" placeholder="Cari nama..." class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 outline-none">
+            </div>
+            
+            <div class="flex items-center gap-1 overflow-x-auto pb-1 text-xs">
+              <button onclick="setFilterRole('ALL')" id="btnFilterAll" class="px-3 py-1.5 rounded-lg font-medium bg-blue-600 text-white">Semua</button>
+              <button onclick="setFilterRole('nasabah')" id="btnFilterNasabah" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Nasabah</button>
+              <button onclick="setFilterRole('pengurus')" id="btnFilterPengurus" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200">Pengurus</button>
+              <button onclick="toggleIncompleteOnly()" id="btnFilterIncomplete" class="px-3 py-1.5 rounded-lg font-medium bg-slate-100 text-slate-600 hover:bg-slate-200 ml-auto flex items-center gap-1">
+                <i class="fas fa-exclamation-circle text-amber-500"></i> Belum Lengkap
+              </button>
+            </div>
+          </div>
+
+          <!-- People List Item Container -->
+          <div id="peopleList" class="flex-1 overflow-y-auto divide-y divide-slate-100 p-2 space-y-1">
+            <div class="p-8 text-center text-slate-400 text-sm">Memuat data...</div>
+          </div>
+
+          <!-- Add Person Button -->
+          <div class="p-3 bg-slate-50 border-t border-slate-100">
+            <button onclick="openPersonModal()" class="w-full bg-slate-900 hover:bg-slate-800 text-white font-medium py-2.5 px-4 rounded-lg text-sm flex items-center justify-center gap-2 transition shadow">
+              <i class="fas fa-user-plus"></i> Tambah Orang Baru
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Main Content: Person Details & Documents -->
+      <section id="detailSection" class="lg:col-span-8 flex flex-col gap-6">
+        <div id="emptyDetailState" class="bg-white rounded-xl p-12 text-center border border-slate-200 flex flex-col items-center justify-center min-h-[400px]">
+          <div class="w-20 h-20 bg-slate-100 text-slate-400 rounded-full flex items-center justify-center text-3xl mb-4">
+            <i class="fas fa-folder-open"></i>
+          </div>
+          <h3 class="text-lg font-bold text-slate-700">Tidak Ada Data Dipilih</h3>
+          <p class="text-sm text-slate-400 max-w-sm mt-1">Pilih salah satu nama dari daftar di sebelah kiri untuk melihat detail dokumen dan riwayat pembayaran.</p>
+        </div>
+
+        <div id="activeDetailState" class="hidden flex-col gap-6">
+          
+          <!-- Person Profile Header Card -->
+          <div class="bg-white p-6 rounded-xl shadow-sm border border-slate-200 relative overflow-hidden">
+            <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <h2 id="personDetailName" class="text-2xl font-black text-slate-900">Nama Orang</h2>
+                  <div id="personDetailRoles" class="flex gap-1"></div>
+                </div>
+                <div class="space-y-1 text-sm text-slate-600 mt-2">
+                  <p id="personDetailUtang" class="flex items-center gap-2 text-red-600 font-bold"><i class="fas fa-money-bill-wave text-red-500 w-4"></i> Total Utang UED-SP: Rp 0</p>
+                  <p id="personDetailAlamat" class="flex items-center gap-2"><i class="fas fa-location-dot text-slate-400 w-4"></i> -</p>
+                  <p id="personDetailTotalPaid" class="flex items-center gap-2 font-bold text-emerald-600"><i class="fas fa-wallet text-emerald-500 w-4"></i> Total dibayar: Rp 0</p>
+                </div>
+              </div>
+
+              <!-- Stamp Indicator & Actions -->
+              <div class="flex flex-col items-end gap-3">
+                <div id="completenessStamp" class="stamp-red">BELUM LENGKAP</div>
+                <div class="flex items-center gap-2">
+                  <button onclick="openPersonModal(true)" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold rounded-lg">Edit</button>
+                  <button onclick="deleteCurrentPerson()" class="px-3 py-1.5 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-semibold rounded-lg">Hapus</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Document Tabs & Payment Section -->
+          <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+            
+            <!-- Navigation Tabs -->
+            <div class="flex border-b border-slate-200 bg-slate-50 overflow-x-auto text-sm font-medium">
+              <button onclick="switchTab('panggilan')" id="tabBtnPanggilan" class="py-3 px-5 border-b-2 border-blue-600 text-blue-600 bg-white font-semibold flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-envelope"></i> Surat Panggilan <span id="badgePanggilan" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+              </button>
+              <button onclick="switchTab('terima')" id="tabBtnTerima" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-receipt"></i> Tanda Terima <span id="badgeTerima" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+              </button>
+              <button onclick="switchTab('iktikad')" id="tabBtnIktikad" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-handshake"></i> Surat Iktikad Baik <span id="badgeIktikad" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+              </button>
+              <button onclick="switchTab('perjanjian')" id="tabBtnPerjanjian" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-file-contract"></i> Perjanjian Pelunasan <span id="badgePerjanjian" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+              </button>
+              <button onclick="switchTab('pembayaran')" id="tabBtnPembayaran" class="py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap">
+                <i class="fas fa-money-bill-wave"></i> Pembayaran <span id="badgePembayaran" class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">0</span>
+              </button>
+            </div>
+
+            <!-- Tab Content Display Area -->
+            <div class="p-6">
+              
+              <!-- Documents Display Header -->
+              <div id="docHeaderControls" class="flex justify-between items-center mb-6">
+                <h3 id="currentTabTitle" class="font-bold text-slate-800 text-base">Foto Surat Panggilan</h3>
+                <button onclick="openDocModal()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition shadow-sm">
+                  <i class="fas fa-plus"></i> Tambah
+                </button>
+              </div>
+
+              <!-- Document / Photo List Grid -->
+              <div id="docListGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <p class="text-slate-400 text-sm">Belum ada foto/dokumen diunggah.</p>
+              </div>
+
+              <!-- Payment List Container (Only visible on Pembayaran Tab) -->
+              <div id="paymentContainer" class="hidden space-y-4">
+                <div id="paymentList" class="divide-y divide-slate-100 border border-slate-200 rounded-lg overflow-hidden">
+                  <p class="p-4 text-slate-400 text-sm">Belum ada riwayat pembayaran.</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Modal: Add/Edit Person -->
+  <div id="personModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-40 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 id="personModalTitle" class="text-lg font-bold text-slate-800 mb-4">Tambah Orang Baru</h3>
+      <form id="personForm" onsubmit="savePerson(event)" class="space-y-4">
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nama Lengkap</label>
+          <input type="text" id="personNameInput" required class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Peran (Bisa Pilih Lebih Dari Satu)</label>
+          <div class="flex items-center gap-4 text-sm mt-1">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="roleNasabah" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"> Nasabah
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="checkbox" id="rolePengurus" class="w-4 h-4 text-blue-600 rounded focus:ring-blue-500"> Pengurus
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Total Utang UED-SP (Rp)</label>
+          <input type="number" id="personUtangInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="Contoh: 5000000">
+        </div>
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Alamat Lengkap</label>
+          <textarea id="personAlamatInput" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        </div>
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closePersonModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Batal</button>
+          <button type="submit" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modal: Add/Edit Document / Payment -->
+  <div id="docModal" class="fixed inset-0 bg-slate-900 bg-opacity-50 z-40 hidden items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl">
+      <h3 id="docModalTitle" class="text-lg font-bold text-slate-800 mb-4">Tambah Dokumen</h3>
+      <form id="docForm" onsubmit="saveDocument(event)" class="space-y-4">
+        
+        <!-- Document Photo Upload -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Foto Surat / Bukti</label>
+          <input type="file" id="docFileInput" accept="image/*" class="w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100">
+          <p class="text-[10px] text-slate-400 mt-1">Foto akan otomatis dikompresi agar hemat ruang penyimpanan. (Kosongkan jika tidak ingin mengubah foto saat edit)</p>
+        </div>
+
+        <!-- Extra fields for Payment Tab -->
+        <div id="paymentExtraFields" class="hidden space-y-3 pt-2 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Nominal Pembayaran (Rp)</label>
+            <input type="number" id="payAmountInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none" placeholder="100000">
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Metode Pembayaran</label>
+            <select id="payMethodInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+              <option value="Tunai">Tunai</option>
+              <option value="Transfer Bank">Transfer Bank</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Tanggal Pembayaran</label>
+            <input type="date" id="payDateInput" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none">
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold text-slate-600 uppercase mb-1">Catatan (opsional)</label>
+          <textarea id="docNotesInput" rows="2" class="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 outline-none"></textarea>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-2">
+          <button type="button" onclick="closeDocModal()" class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-medium rounded-lg">Batal</button>
+          <button type="submit" id="btnSaveDoc" class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">Simpan</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="imageLightbox" class="fixed inset-0 bg-black bg-opacity-90 z-50 hidden items-center justify-center p-4" onclick="closeLightbox()">
+    <img id="lightboxImg" class="max-w-full max-h-full rounded-lg object-contain" src="" alt="Pratinjau Foto">
+  </div>
+
+  <!-- Firebase Integration -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-app.js";
+    import { 
+      getFirestore, collection, addDoc, updateDoc, deleteDoc, doc, getDocs, onSnapshot, query, where, orderBy, serverTimestamp 
+    } from "https://www.gstatic.com/firebasejs/12.17.1/firebase-firestore.js";
+
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyB_REDACTED",
+      authDomain: "ued-sp.firebaseapp.com",
+      projectId: "ued-sp",
+      storageBucket: "ued-sp.firebasestorage.app",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    // Master App State
+    let state = {
+      people: [],
+      selectedPersonId: null,
+      selectedPersonData: null,
+      activeTab: 'panggilan', // 'panggilan', 'terima', 'iktikad', 'perjanjian', 'pembayaran'
+      filterRole: 'ALL',
+      filterIncompleteOnly: false,
+      searchQuery: '',
+      unsubscribePersonListener: null,
+      editingDocId: null
+    };
+
+    // Global Lock & Master Auth Logic
+    const MASTER_PIN = "Minehmandiri2026?";
+
+    window.handlePinSubmit = function(e) {
+      e.preventDefault();
+      const pin = document.getElementById('pinInput').value;
+      if (pin === MASTER_PIN) {
+        sessionStorage.setItem('ued_authenticated', 'true');
+        document.getElementById('pinOverlay').classList.add('hidden');
+        document.getElementById('pinInput').value = '';
+        document.getElementById('pinError').classList.add('hidden');
+      } else {
+        document.getElementById('pinError').classList.remove('hidden');
+      }
+    };
+
+    window.lockApp = function() {
+      sessionStorage.removeItem('ued_authenticated');
+      document.getElementById('pinOverlay').classList.remove('hidden');
+    };
+
+    function checkAuthStatus() {
+      if (sessionStorage.getItem('ued_authenticated') === 'true') {
+        document.getElementById('pinOverlay').classList.add('hidden');
+      } else {
+        document.getElementById('pinOverlay').classList.remove('hidden');
+      }
+    }
+
+    // Convert & Compress File to Base64 String
+    async function uploadPhotoBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const img = new Image();
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxDim = 1200;
+
+            if (width > maxDim || height > maxDim) {
+              if (width > height) {
+                height = Math.round((height * maxDim) / width);
+                width = maxDim;
+              } else {
+                width = Math.round((width * maxDim) / height);
+                height = maxDim;
+              }
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+
+            const base64Url = canvas.toDataURL('image/jpeg', 0.8);
+            resolve(base64Url);
+          };
+          img.onerror = reject;
+          img.src = e.target.result;
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Realtime Sync for People Directory
+    function listenToPeople() {
+      const q = query(collection(db, "people"), orderBy("nama", "asc"));
+      onSnapshot(q, (snapshot) => {
+        state.people = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        renderPeopleList();
+        updateGlobalStats();
+
+        if (state.selectedPersonId) {
+          const updated = state.people.find(p => p.id === state.selectedPersonId);
+          if (updated) {
+            state.selectedPersonData = updated;
+            renderSelectedPersonDetail();
+          } else {
+            state.selectedPersonId = null;
+            state.selectedPersonData = null;
+            renderSelectedPersonDetail();
+          }
+        }
+      });
+    }
+
+    // Render Directory List Left Panel
+    function renderPeopleList() {
+      const container = document.getElementById('peopleList');
+      let filtered = [...state.people];
+
+      if (state.searchQuery) {
+        const q = state.searchQuery.toLowerCase();
+        filtered = filtered.filter(p => p.nama?.toLowerCase().includes(q));
+      }
+
+      if (state.filterRole !== 'ALL') {
+        filtered = filtered.filter(p => p.roles && p.roles.includes(state.filterRole));
+      }
+
+      if (state.filterIncompleteOnly) {
+        filtered = filtered.filter(p => !checkCompleteness(p.id));
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 text-xs">Tidak ada data ditemukan.</div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(person => {
+        const isSelected = person.id === state.selectedPersonId;
+        const roles = person.roles || [];
+        const isComplete = checkCompleteness(person.id);
+
+        return `
+          <div onclick="selectPerson('${person.id}')" class="p-3 rounded-lg cursor-pointer transition flex items-center justify-between ${isSelected ? 'bg-blue-50 border border-blue-200' : 'hover:bg-slate-50'}">
+            <div class="flex items-center gap-3">
+              <div class="w-2.5 h-2.5 rounded-full ${isComplete ? 'bg-emerald-500' : 'bg-amber-500'}"></div>
+              <div>
+                <h4 class="font-bold text-sm text-slate-800 leading-snug">${escapeHtml(person.nama)}</h4>
+                <div class="flex gap-1 mt-0.5">
+                  ${roles.map(r => `<span class="text-[10px] px-1.5 py-0.2 bg-slate-200 text-slate-600 rounded uppercase font-semibold">${r}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+            <i class="fas fa-chevron-right text-xs ${isSelected ? 'text-blue-600' : 'text-slate-300'}"></i>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function checkCompleteness(personId) {
+      const person = state.people.find(p => p.id === personId);
+      if (!person) return false;
+      return person.isComplete || false;
+    }
+
+    function updateGlobalStats() {
+      document.getElementById('statTotalPeople').textContent = state.people.length;
+      const incompleteCount = state.people.filter(p => !p.isComplete).length;
+      document.getElementById('statIncomplete').textContent = incompleteCount;
+    }
+
+    // Select Person
+    window.selectPerson = function(id) {
+      state.selectedPersonId = id;
+      state.selectedPersonData = state.people.find(p => p.id === id);
+      renderPeopleList();
+      renderSelectedPersonDetail();
+      listenToPersonSubcollections(id);
+    };
+
+    function renderSelectedPersonDetail() {
+      const emptyState = document.getElementById('emptyDetailState');
+      const activeState = document.getElementById('activeDetailState');
+
+      if (!state.selectedPersonData) {
+        emptyState.classList.remove('hidden');
+        emptyState.classList.add('flex');
+        activeState.classList.add('hidden');
+        activeState.classList.remove('flex');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+      emptyState.classList.remove('flex');
+      activeState.classList.remove('hidden');
+      activeState.classList.add('flex');
+
+      const p = state.selectedPersonData;
+      const totalUtang = Number(p.utang) || 0;
+      document.getElementById('personDetailName').textContent = p.nama || '-';
+      document.getElementById('personDetailUtang').innerHTML = `<i class="fas fa-money-bill-wave text-red-500 w-4"></i> Total Utang UED-SP: Rp ${totalUtang.toLocaleString('id-ID')}`;
+      document.getElementById('personDetailAlamat').innerHTML = `<i class="fas fa-location-dot text-slate-400 w-4"></i> ${p.alamat || '-'}`;
+
+      const rolesContainer = document.getElementById('personDetailRoles');
+      rolesContainer.innerHTML = (p.roles || []).map(r => `<span class="text-xs px-2 py-0.5 bg-blue-100 text-blue-800 font-semibold rounded uppercase">${r}</span>`).join('');
+
+      updateCompletenessStamp();
+    }
+
+    // Realtime Sub-collections for Docs and Payments
+    function listenToPersonSubcollections(personId) {
+      if (state.unsubscribePersonListener) {
+        state.unsubscribePersonListener();
+      }
+
+      const q = query(collection(db, "people", personId, "documents"));
+      state.unsubscribePersonListener = onSnapshot(q, (snapshot) => {
+        const docs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        state.personDocs = docs;
+        renderActiveTabContent();
+        evaluateCompletenessStatus(personId, docs);
+      });
+    }
+
+    function evaluateCompletenessStatus(personId, docs) {
+      const requiredTypes = ['panggilan', 'terima', 'iktikad', 'perjanjian'];
+      const presentTypes = new Set(docs.map(d => d.type));
+      const isAllPresent = requiredTypes.every(type => presentTypes.has(type));
+
+      const stampEl = document.getElementById('completenessStamp');
+      if (isAllPresent) {
+        stampEl.className = 'stamp-green';
+        stampEl.textContent = 'DOKUMEN LENGKAP';
+      } else {
+        stampEl.className = 'stamp-red';
+        stampEl.textContent = 'BELUM LENGKAP';
+      }
+
+      const personRef = doc(db, "people", personId);
+      updateDoc(personRef, { isComplete: isAllPresent }).catch(() => {});
+    }
+
+    function updateCompletenessStamp() {
+      if (!state.personDocs) return;
+      evaluateCompletenessStatus(state.selectedPersonId, state.personDocs);
+    }
+
+    // Switch Tabs
+    window.switchTab = function(tabName) {
+      state.activeTab = tabName;
+      
+      ['panggilan', 'terima', 'iktikad', 'perjanjian', 'pembayaran'].forEach(t => {
+        const btn = document.getElementById(`tabBtn${capitalize(t)}`);
+        if (t === tabName) {
+          btn.className = 'py-3 px-5 border-b-2 border-blue-600 text-blue-600 bg-white font-semibold flex items-center gap-2 whitespace-nowrap';
+        } else {
+          btn.className = 'py-3 px-5 border-b-2 border-transparent text-slate-500 hover:text-slate-700 flex items-center gap-2 whitespace-nowrap';
+        }
+      });
+
+      renderActiveTabContent();
+    };
+
+    function renderActiveTabContent() {
+      const docs = state.personDocs || [];
+      const docGrid = document.getElementById('docListGrid');
+      const payContainer = document.getElementById('paymentContainer');
+
+      // Update Badges
+      ['panggilan', 'terima', 'iktikad', 'perjanjian', 'pembayaran'].forEach(t => {
+        const count = docs.filter(d => d.type === t).length;
+        document.getElementById(`badge${capitalize(t)}`).textContent = count;
+      });
+
+      const tabTitles = {
+        panggilan: 'Foto Surat Panggilan 1',
+        terima: 'Foto Tanda Terima Surat',
+        iktikad: 'Foto Surat Iktikad Baik',
+        perjanjian: 'Foto Perjanjian Pelunasan Pembayaran',
+        pembayaran: 'Riwayat & Bukti Pembayaran'
+      };
+
+      document.getElementById('currentTabTitle').textContent = tabTitles[state.activeTab];
+
+      if (state.activeTab === 'pembayaran') {
+        docGrid.classList.add('hidden');
+        payContainer.classList.remove('hidden');
+        renderPaymentList(docs.filter(d => d.type === 'pembayaran'));
+      } else {
+        docGrid.classList.remove('hidden');
+        payContainer.classList.add('hidden');
+        renderDocumentGrid(docs.filter(d => d.type === state.activeTab));
+      }
+    }
+
+    function renderDocumentGrid(filteredDocs) {
+      const container = document.getElementById('docListGrid');
+      if (filteredDocs.length === 0) {
+        container.innerHTML = `<p class="text-slate-400 text-sm col-span-2 py-4">Belum ada dokumen/foto diunggah untuk kategori ini.</p>`;
+        return;
+      }
+
+      container.innerHTML = filteredDocs.map(item => `
+        <div class="bg-slate-50 border border-slate-200 rounded-xl overflow-hidden group relative flex flex-col justify-between">
+          <div>
+            <div class="h-48 overflow-hidden bg-slate-200 cursor-pointer relative" onclick="openLightbox('${item.photoUrl}')">
+              <img src="${item.photoUrl}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" alt="Foto Dokumen">
+              <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-semibold gap-1">
+                <i class="fas fa-eye"></i> Klik untuk Perbesar
+              </div>
+            </div>
+            <div class="p-3">
+              <p class="text-xs font-semibold text-slate-700">${formatDate(item.createdAt)}</p>
+              ${item.notes ? `<p class="text-xs text-slate-500 mt-1">${escapeHtml(item.notes)}</p>` : ''}
+            </div>
+          </div>
+          <div class="p-3 pt-0 flex justify-end gap-2 border-t border-slate-100 bg-white/50">
+            <button onclick="openLightbox('${item.photoUrl}')" class="px-2.5 py-1 bg-blue-50 hover:bg-blue-100 text-blue-600 text-xs font-medium rounded-md flex items-center gap-1 transition">
+              <i class="fas fa-eye text-[10px]"></i> Lihat
+            </button>
+            <button onclick="openDocModal('${item.id}')" class="px-2.5 py-1 bg-amber-50 hover
